@@ -10,7 +10,7 @@ lastName varchar(200) NOT NULL,
 major varchar(100) NOT NULL, #have to make a list of majors
 gender varchar(50),
 profilePic varchar(200),
-PRIMARY KEY (userID),
+PRIMARY KEY (userID), #this will be url?
 UNIQUE KEY email (email)
 );
 
