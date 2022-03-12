@@ -5,8 +5,8 @@ CREATE TABLE users (
 userID int(50) NOT NULL auto_increment, 
 email varchar(200) NOT NULL,
 pass varchar(200) NOT NULL,  # will change later. need encyption
-firstName varchar(200) NOT NULL,
-lastName varchar(200) NOT NULL,
+firstName varchar(50) NOT NULL,
+lastName varchar(50) NOT NULL,
 major varchar(100) NOT NULL, #have to make a list of majors
 gender varchar(50),
 profilePic varchar(200),
@@ -28,10 +28,14 @@ FOREIGN KEY (recieverID) REFERENCES users(userID)
 CREATE TABLE tutors(
 tutorID int(50) NOT NULL auto_increment,
 userID int(50) NOT NULL,
+firstName varchar(50) NOT NULL,
+lastName varchar(50) NOT NULL, 
 phoneNumber int(10),
 price decimal(4,2),
 PRIMARY KEY (tutorID),
-FOREIGN KEY (userID) REFERENCES users(userID)
+FOREIGN KEY (userID) REFERENCES users(userID),
+FOREIGN KEY (firstName) REFERENCES users(firstName),
+FOREIGN KEY (lastName) REFERENCES users(lastName)
 );
 
 CREATE TABLE studyGroup(
