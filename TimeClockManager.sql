@@ -19,20 +19,23 @@ FOREIGN KEY (sID) REFERENCES staff(sID)
 
 SELECT * FROM timeClockManager.staff;
 
-Insert into timeClockManager.staff(sName, sUserName sPassword)
+Insert into timeClockManager.staff(sName, sUserName, sPassword)
 values('','','');
 
 UPDATE staff
-set sName = '',
+set sName = ''
 where sname = '';
 
 UPDATE staff
-set sUsername = '',
+set sUsername = ''
 where sUsername = '';
 
 UPDATE staff
-set sPassword = '',
+set sPassword = ''
 where sPassword = '';
+
+Delete from staff
+where sID = '';
 
 Delete from timeClock.Manager.staff
 where sID = '';
