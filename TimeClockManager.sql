@@ -36,6 +36,3 @@ where sPassword = '';
 
 Delete from staff
 where sID = '';
-
-Delete from timeClock.Manager.staff
-where sID = '';
