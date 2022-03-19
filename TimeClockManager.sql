@@ -52,3 +52,4 @@ where clockOut = '';
 
 Delete from timeClock.Manager.clock
 where sID = '';
+-- testing
