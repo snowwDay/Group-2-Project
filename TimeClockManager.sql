@@ -34,6 +34,9 @@ UPDATE staff
 set sPassword = ''
 where sPassword = '';
 
+Delete from staff
+where sID = '';
+
 SELECT * FROM timeClockManager.clock;
 
 Insert into timeClockManager.clock(clockIN, clockOut)
@@ -48,7 +51,4 @@ set clockOut = ''
 where clockOut = '';
 
 Delete from timeClock.Manager.clock
-where sID = '';
-
-Delete from staff
 where sID = '';
