@@ -50,6 +50,6 @@ UPDATE clock
 set clockOut = ''
 where clockOut = '';
 
-Delete from timeClock.Manager.clock
+Delete from clock
 where sID = '';
 
