@@ -34,5 +34,21 @@ UPDATE staff
 set sPassword = ''
 where sPassword = '';
 
+SELECT * FROM timeClockManager.clock;
+
+Insert into timeClockManager.clock(clockIN, clockOut)
+values('','');
+
+UPDATE clock
+set clockIN = ''
+where clockIN = '';
+
+UPDATE clock
+set clockOut = ''
+where clockOut = '';
+
+Delete from timeClock.Manager.clock
+where sID = '';
+
 Delete from staff
 where sID = '';
