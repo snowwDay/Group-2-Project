@@ -16,3 +16,23 @@ clockIn DATETIME,
 clockOut DATETIME,
 FOREIGN KEY (sID) REFERENCES staff(sID)
 );
+
+SELECT * FROM timeClockManager.staff;
+
+Insert into timeClockManager.staff(sName, sUserName sPassword)
+values('','','');
+
+UPDATE staff
+set sName = '',
+where sname = '';
+
+UPDATE staff
+set sUsername = '',
+where sUsername = '';
+
+UPDATE staff
+set sPassword = '',
+where sPassword = '';
+
+Delete from timeClock.Manager.staff
+where sID = '';
