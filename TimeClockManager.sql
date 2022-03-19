@@ -17,9 +17,9 @@ clockOut DATETIME,
 FOREIGN KEY (sID) REFERENCES staff(sID)
 );
 
-SELECT * FROM timeClockManager.staff;
+SELECT * FROM staff;
 
-Insert into timeClockManager.staff(sName, sUserName, sPassword)
+Insert into staff(sName, sUserName, sPassword)
 values('','','');
 
 UPDATE staff
@@ -37,18 +37,18 @@ where sPassword = '';
 Delete from staff
 where sID = '';
 
-SELECT * FROM timeClockManager.clock;
+SELECT * FROM clock;
 
-Insert into timeClockManager.clock(clockIN, clockOut)
-values('','');
-
-UPDATE clock
-set clockIN = ''
-where clockIN = '';
+Insert into clock(clockIN, clockOut)
+values('2019-01-01 12:00','2019-01-01 12:00');
 
 UPDATE clock
-set clockOut = ''
-where clockOut = '';
+set clockIN = '2019-01-01 12:00'
+where clockIN = '2019-01-01 12:00';
+
+UPDATE clock
+set clockOut = '2019-01-01 12:00'
+where clockOut = '2019-01-01 12:00';
 
 Delete from clock
 where sID = '';
