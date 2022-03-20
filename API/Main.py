@@ -47,5 +47,5 @@ def get_user():
 
 if __name__ == "__main__":
     import logging
-    logging.basicConfig(filename='/home/uploads/_up.log',level=logging.DEBUG)
+    logging.basicConfig(filename='_api.log',level=logging.DEBUG)
     app.run(debug=Debug, host=Host, port=Port)
