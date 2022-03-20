@@ -4,16 +4,23 @@ CREATE DATABASE timeClockManager;
 
 CREATE TABLE staff(
 sID INT PRIMARY KEY AUTO_INCREMENT,
-sName varchar(100),
-sUserName varchar(100),
-sPassword varchar(100)
+sName varchar(100) NOT NULL CHECK (sName <> ''),
+sUserName varchar(100) NOT NULL CHECK (sUserName <> ''),
+sPassword varchar(100) NOT NULL CHECK (sPassword <> '')
 );
 
 CREATE TABLE clock(
 id INT PRIMARY KEY AUTO_INCREMENT,
 sID INT,
-clockIn DATETIME,
-clockOut DATETIME,
+clockIn DATETIME NOT NULL CHECK (clockIn <> ''),
+clockOut DATETIME NOT NULL CHECK (clockOut <> ''),
+FOREIGN KEY (sID) REFERENCES staff(sID)
+);
+
+CREATE TABLE salts(
+id INT PRIMARY KEY AUTO_INCREMENT,
+sID INT,
+salt varchar(15) NOT NULL CHECK (salt <> ''),
 FOREIGN KEY (sID) REFERENCES staff(sID)
 );
 
