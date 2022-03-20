@@ -12,8 +12,8 @@ sPassword varchar(100) NOT NULL CHECK (sPassword <> '')
 CREATE TABLE clock(
 id INT PRIMARY KEY AUTO_INCREMENT,
 sID INT,
-clockIn DATETIME NOT NULL CHECK (clockIn <> ''),
-clockOut DATETIME NOT NULL CHECK (clockOut <> ''),
+clockIn DATETIME NOT NULL,
+clockOut DATETIME NOT NULL,
 FOREIGN KEY (sID) REFERENCES staff(sID)
 );
 
