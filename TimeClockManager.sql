@@ -14,7 +14,7 @@ id INT PRIMARY KEY AUTO_INCREMENT,
 sID INT,
 clockIn DATETIME,
 clockOut DATETIME,
-status enum('In','Out') NOT NULL,
+status enum('In','Out','Lunch') NOT NULL,
 FOREIGN KEY (sID) REFERENCES staff(sID)
 );
 
