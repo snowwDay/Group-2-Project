@@ -36,3 +36,7 @@ where sID = '';
 
 insert into staff values (1,'User','user','pass');
 insert into clock values (2,1,'2022-03-20 09:30',NULL,'In');
+insert into schedule values (1,1,'2022-03-20','09:00','16:00',0);
+select * from schedule;
+delete from schedule where id = 1;
+
