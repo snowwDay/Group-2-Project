@@ -18,6 +18,15 @@ status enum('In','Out') NOT NULL,
 FOREIGN KEY (sID) REFERENCES staff(sID)
 );
 
+CREATE TABLE schedule(
+id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+sID INT,
+workDate DATE NOT NULL,
+startTime TIME NOT NULL,
+endTime TIME NOT NULL,
+timeOff BOOLEAN # (on break) 0 for no, 1 for yes
+);
+
 CREATE TABLE salts(
 id INT PRIMARY KEY AUTO_INCREMENT,
 sID INT,
