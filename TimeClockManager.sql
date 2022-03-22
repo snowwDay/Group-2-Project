@@ -8,6 +8,16 @@ dID INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
 dName varchar(100)
 );
 
+CREATE TABLE admin(
+aID INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+dID INT,
+aName varchar(100) NOT NULL,
+aUsername varchar(100) NOT NULL,
+aPass varchar(100) NOT NULL,
+FOREIGN KEY (dID) REFERENCES department(dID)
+);
+
+
 CREATE TABLE staff(
 sID INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
 dID INT,
@@ -40,8 +50,10 @@ CREATE TABLE scheduleList(
 id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
 sID INT,
 dID INT,
+status enum('In','Out'),
 FOREIGN KEY (sID) REFERENCES staff(sID),
-FOREIGN KEY (dID) REFERENCES department(dID)
+FOREIGN KEY (dID) REFERENCES department(dID),
+FOREIGN KEY (status) REFERENCES clock(status) 
 );
 
 CREATE TABLE unscheduledList(
