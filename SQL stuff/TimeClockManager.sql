@@ -32,7 +32,7 @@ id INT PRIMARY KEY AUTO_INCREMENT,
 sID INT,
 clockIn DATETIME,
 clockOut DATETIME,
-status enum('In','Out','Lunch') NOT NULL,
+status enum('In','Out','Break') NOT NULL,
 FOREIGN KEY (sID) REFERENCES staff(sID)
 );
 
@@ -49,21 +49,17 @@ FOREIGN KEY (sID) REFERENCES staff(sID)
 CREATE TABLE scheduleList(
 id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
 sID INT,
-dID INT,
 status enum('In','Out'),
 FOREIGN KEY (sID) REFERENCES staff(sID),
-FOREIGN KEY (dID) REFERENCES department(dID),
 FOREIGN KEY (status) REFERENCES clock(status) 
 );
 
 CREATE TABLE unscheduledList(
 id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
 sID INT,
-dID INT,
-FOREIGN KEY (sID) REFERENCES staff(sID),
-FOREIGN KEY (dID) REFERENCES department(dID)
+FOREIGN KEY (sID) REFERENCES staff(sID)
 );
-#might remove dID from the lists, looks redundant.
+
 
 CREATE TABLE salts(
 id INT PRIMARY KEY AUTO_INCREMENT,
