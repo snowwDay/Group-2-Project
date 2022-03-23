@@ -49,9 +49,7 @@ FOREIGN KEY (sID) REFERENCES staff(sID)
 CREATE TABLE scheduleList(
 id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
 sID INT,
-status enum('In','Out'),
-FOREIGN KEY (sID) REFERENCES staff(sID),
-FOREIGN KEY (status) REFERENCES clock(status) 
+FOREIGN KEY (sID) REFERENCES staff(sID)
 );
 
 CREATE TABLE unscheduledList(
