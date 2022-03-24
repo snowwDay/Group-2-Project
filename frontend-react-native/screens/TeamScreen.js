@@ -9,7 +9,6 @@ import UnscheduledTeam from '../components/teamScreen/UnscheduledTeam'
 
 // Screen
 export default function TeamScreen({ navigation }) {
-
     return (
         <SafeAreaView style={ styles.container }>
             <TeamHeader />
