@@ -33,7 +33,7 @@ export default function ScheduleViewer() {
 const styles = StyleSheet.create({
     container: {
         backgroundColor: 'white',
-        height: '58%',
+        height: '59%',
         borderRadius: 10,
         marginTop: 20,
         marginHorizontal: 20,
