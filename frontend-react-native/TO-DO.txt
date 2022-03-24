@@ -1,0 +1,10 @@
+TO-DO:
+  Screens:
+    - Login Screen
+    - View Time Punches Screen
+    - Admin Screen
+    - TBD
+    
+  Components:
+    - Menu Button Sliding View
+    - TBD
