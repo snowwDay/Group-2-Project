@@ -66,3 +66,10 @@ salt varchar(15) NOT NULL CHECK (salt <> ''),
 FOREIGN KEY (sID) REFERENCES staff(sID)
 );
 
+CREATE TABLE tokens(
+id INT PRIMARY KEY AUTO_INCREMENT,
+sID INT,
+creationDate DATETIME NOT NULL default current_timestamp,
+token char(32) NOT NULL CHECK (token <> ''),
+FOREIGN KEY (sID) REFERENCES staff(sID)
+);
