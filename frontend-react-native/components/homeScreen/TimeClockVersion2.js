@@ -7,6 +7,9 @@ import { useState } from 'react';
 const getCurrentTime=()=>{
     var hour = new Date().getHours();
     var minute = new Date().getMinutes();
+    if (hour == 0) {
+        hour = 12;
+    }
     if(minute == 0) {
         return hour + ':00' + 'am';
     } else if (minute > 0 && minute < 10) {
@@ -14,6 +17,7 @@ const getCurrentTime=()=>{
     } else {
         return hour + ':' + minute + 'am';
     }
+    console.log(hour)
 }
 
 // Time Clock Component
@@ -199,7 +203,7 @@ const styles = StyleSheet.create({
     timeText: {
         color: '#99a29b',
         textAlign: 'center',
-        fontSize: 48,
+        fontSize: 40,
         fontWeight: '800',
     },
     confirmButtonContainer: {
