@@ -12,8 +12,6 @@ CREATE TABLE admin(
 aID INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
 dID INT,
 aName varchar(100) NOT NULL,
-aUsername varchar(100) NOT NULL,
-aPass varchar(100) NOT NULL,
 FOREIGN KEY (dID) REFERENCES department(dID)
 );
 
@@ -22,8 +20,6 @@ CREATE TABLE staff(
 sID INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
 dID INT,
 sName varchar(100) NOT NULL CHECK (sName <> ''),
-sUserName varchar(100) NOT NULL CHECK (sUserName <> ''),
-sPassword varchar(100) NOT NULL CHECK (sPassword <> ''),
 FOREIGN KEY (dID) REFERENCES department(dID)
 );
 
