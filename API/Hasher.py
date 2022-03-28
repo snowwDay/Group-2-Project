@@ -13,3 +13,4 @@ class Hasher:
         ##Salt the password
         salted=''
         return salted
+

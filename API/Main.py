@@ -1,26 +1,23 @@
-from flask import Flask, request, redirect, jsonify
-from db import *
-from utils import *
-from hasher import *
+from flask import Flask, request, redirect, jsonify, make_response
+from Db import *
+from Utils import *
+from Hasher import *
 
 Debug=True
-Host=''
+Host='137.184.96.25'
 Port=2000
 
 app = Flask(__name__)
-auth = HTTPBasicAuth()
 
-def auth(args):
-    if 'token' not in args:
-        return false
-    cursor.execute('select sID from tokens where token=%s;', (args['token']))
-    if cursor.fetchone()[0]:
-        return true
-    return false
+def auth(arg):
+    if arg is None:
+        return -1
+    cursor.execute('select sID from tokens where token=%s ORDER BY creationDate DESC LIMIT 1;', (arg,))
+    sID = cursor.fetchone()[0]
+    if sID is not None:
+        return sID
+    return -1
 
-@auth.error_handler
-def unauthorized():
-    return make_response(jsonify({'error': 'Unauthorized access'}), 403)
 
 @app.errorhandler(400)
 def not_found(error):
@@ -30,37 +27,46 @@ def not_found(error):
 def not_found(error):
     return make_response(jsonify( { 'error': 'Not found' } ), 404)
 
-@app.route('/update-user', methods=['POST'])
-def update_user():
-    cursor.execute('select count(1) from staff where Username=%s and Password=%s;', (username, password))
-    if cursor.fetchone()[0]:
-        return cursor.fetchone()[0][0]
-        ##Switch to saved sessions, and use sID
-        #cursor.execute('select count(1) from Users where sID=%;', (sID))
-
 @app.route('/login', methods=['GET'])
 def login():
     if 'user' in request.args and 'pass' in request.args:
         print(request.args['user'] + '\n' + request.args['pass'])
         cursor.execute('select sID from staff where sUserName=%s and sPassword=%s;', (request.args['user'], request.args['pass']))
-        if cursor.fetchone()[0]:
-            token = gen_token(32)
-            cursor.execute('insert into staff(sID,token);', (cursor.fetchone()[0][0], token))
+        sID = cursor.fetchone()[0]
+        if sID > -1:
+            token = utils.gen_token(32)
+            cursor.execute('insert into tokens(sID,token)values(%s,%s);', (sID, token))
+            db.commit()
             return make_response(jsonify( { 'Token': token } ), 200)
     return make_response(jsonify( { 'Error:': 'Invalid Credentials' } ), 401)
-    
-@app.route('/get-user', methods=['GET'])
-@auth
-def get_user():
-    try:
-        if len(request.args) < 2:
-            abort(400)
 
-        cursor.execute('select count(1) from staff where sID=%s;', (sID))
-        if cursor.fetchone()[0]:
-            return make_response(jsonify( { 'Data': str(cursor.fetchone()[0]) } ), 200)
-    except (mysql.connector.errors.ProgrammingError, mysql.connector.errors.DataError ) as err:
-        abort(400)
+@app.route('/get-user', methods=['GET'])
+def get_user():
+    sID = auth(request.args.get('token'))
+    if sID is not None:
+        try:
+            cursor.execute('select * from staff where sID=%s;', (sID,))
+            user = cursor.fetchone()
+            cursor.execute('select * from schedule where sID=%s;', (sID,))
+            sched = cursor.fetchone()
+            if sched is None:
+                sched = ''
+            if user is not None:
+                return make_response(jsonify( { 'UserData': str(user), 'Schedule': str(sched) } ), 200)
+        except (mysql.connector.errors.ProgrammingError, mysql.connector.errors.DataError ) as err:
+            print(err)
+
+#@app.route('/update_user', methods=['POST'])
+#def update_user():
+
+#@app.route('/reset_pass', methods=['POST'])
+#def reset_pass():
+
+#@app.route('/add_scheduled', methods=['POST'])
+#def add_scheduled():
+
+#@app.route('/remove_scheduled', methods=['POST'])
+#def remove_scheduled():
 
 if __name__ == "__main__":
     import logging

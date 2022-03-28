@@ -1,8 +1,8 @@
 import mysql.connector
 db = mysql.connector.connect(
   host="localhost",
-  user="",
-  password="",
-  database=""
+  user="sammy",
+  password="password",
+  database="timeClockManager"
 )
 cursor = db.cursor(buffered = True)
