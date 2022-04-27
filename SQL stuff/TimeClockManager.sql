@@ -64,5 +64,6 @@ id INT PRIMARY KEY AUTO_INCREMENT,
 sID INT NOT NULL,
 ranks INT NOT NULL,
 creationDate DATETIME NOT NULL default current_timestamp,
-token char(32) NOT NULL CHECK (token <> '')
+token char(32) NOT NULL CHECK (token <> ''),
+FOREIGN KEY (sID) REFERENCES staff(sID)
 );
