@@ -6,7 +6,9 @@ USE timeClockManager;
 
 CREATE TABLE department(
 dID INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
-dName varchar(100)
+aID INt NOT NULL,
+dName varchar(100),
+FOREIGN KEY (aID) REFERENCES admin(aID)
 );
 
 CREATE TABLE admin(
