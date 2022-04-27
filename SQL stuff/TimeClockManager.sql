@@ -6,9 +6,8 @@ USE timeClockManager;
 
 CREATE TABLE department(
 dID INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
-aID INt NOT NULL,
+aID INT NOT NULL,
 dName varchar(100),
-FOREIGN KEY (aID) REFERENCES admin(aID)
 );
 
 CREATE TABLE admin(
@@ -57,7 +56,7 @@ CREATE TABLE admin_salts(
 id INT PRIMARY KEY AUTO_INCREMENT,
 aID INT,
 salt char(32) NOT NULL CHECK (salt <> ''),
-FOREIGN KEY (sID) REFERENCES admin(aID)
+FOREIGN KEY (aID) REFERENCES admin(aID)
 );
 
 CREATE TABLE tokens(
