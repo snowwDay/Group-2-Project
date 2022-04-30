@@ -48,14 +48,14 @@ FOREIGN KEY (sID) REFERENCES staff(sID)
 CREATE TABLE staff_salts(
 id INT PRIMARY KEY AUTO_INCREMENT,
 sID INT,
-salt char(32) NOT NULL CHECK (salt <> ''),
+salt varchar(64) NOT NULL CHECK (salt <> ''),
 FOREIGN KEY (sID) REFERENCES staff(sID)
 );
 
 CREATE TABLE admin_salts(
 id INT PRIMARY KEY AUTO_INCREMENT,
 aID INT,
-salt char(32) NOT NULL CHECK (salt <> ''),
+salt varchar(64) NOT NULL CHECK (salt <> ''),
 FOREIGN KEY (aID) REFERENCES admin(aID)
 );
 
@@ -64,6 +64,6 @@ id INT PRIMARY KEY AUTO_INCREMENT,
 sID INT NOT NULL,
 ranks INT NOT NULL,
 creationDate DATETIME NOT NULL default current_timestamp,
-token char(32) NOT NULL CHECK (token <> ''),
+token varchar(64) NOT NULL CHECK (token <> ''),
 FOREIGN KEY (sID) REFERENCES staff(sID)
 );
