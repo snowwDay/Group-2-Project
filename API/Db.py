@@ -1,8 +1,17 @@
 import mysql.connector
-db = mysql.connector.connect(
+
+sched_db = mysql.connector.connect(
   host="localhost",
   user="sammy",
   password="password",
   database="timeClockManager"
 )
-cursor = db.cursor(buffered = True)
+sched_cursor = sched_db.cursor(buffered = True)
+
+emp_db = mysql.connector.connect(
+  host="localhost",
+  user="sammy",
+  password="password",
+  database="employeeInfo"
+)
+emp_cursor = emp_db.cursor(buffered = True)
