@@ -11,10 +11,11 @@ from flask_seasurf import SeaSurf
 from Db import *
 from Utils import *
 from Hasher import *
+import json
 
 Debug=True
 Host='137.184.96.25'
-Port=2000
+Port=3000
 
 app = Flask(__name__)
 Talisman(app)
@@ -32,7 +33,7 @@ Auth function: Checks to see if a user has been authorized
 def auth(token):
     if token is None:
         return None
-    sched_cursor.execute(f'select sID,ranks from tokens where token=to_base64(aes_encrypt(%s,"{key}")) ORDER BY creationDate DESC LIMIT 1;', (token,))
+    sched_cursor.execute(f'select sID,ranks from tokens where token=to_base64(aes_encrypt(%s,"{key}")) and (creationDate > now() - interval 24 hour) ORDER BY creationDate DESC LIMIT 1;', (token,))
     creds = sched_cursor.fetchone()
     if creds is not None:
         return creds
@@ -118,8 +119,10 @@ add_staff function: Used to add new staff members to the system
 
 :path: /add_staff
 
+:param token: Authenticate user
 :param dID: Department that the user will belong to
 :param name: Name of user to be added
+:param email: Email address of user
 :param user: Username of user to be added
 :param pass: Password of user to be added
 :return: Message on success or failure
@@ -132,18 +135,30 @@ def add_staff():
         sName = request.args.get('name')
         sUsername = request.args.get('user')
         sPass = request.args.get('pass')
-        #salt = utils.gen_token(15)
-        #sPass = generate_hash(sPass, salt)
+        dID = request.args.get('dID')
+        
+        if sEmail is None or sName is None:
+            return make_response(jsonify( { 'Error:': 'Missing name or email' } ), 501)
+        if sUsername is None or sPass is None:
+            return make_response(jsonify( { 'Error:': 'Username or Password' } ), 501)
+        if dID is None:
+            return make_response(jsonify( { 'Error:': 'User must be added to a department...' } ), 501)
+            
+        emp_cursor.execute(f'select count(1) from department where dID=%s',(dID,))
+        if emp_cursor.fetchone()[0] < 1:
+            return make_response(jsonify( { 'Error:': 'Department does not exist...' } ), 404)
+        
         emp_cursor.execute(f'select count(1) from staff where sUsername=to_base64(aes_encrypt(%s,"{key}"))',(sUsername,))
         if emp_cursor.fetchone()[0] > 0:
             return make_response(jsonify( { 'Error:': 'User already exists.' } ), 502)
+            
         emp_cursor.execute(f'select to_base64(aes_encrypt(%s,"{key}"))', (sPass,))
         sPass = emp_cursor.fetchone()[0]
         salt = utils.gen_token(32)
         sPass = Hasher.generate_hash(sPass, salt)
         emp_cursor.execute(f'insert into staff (sEmail, sName, sUsername, sPassword)values(to_base64(aes_encrypt(%s,"{key}")), to_base64(aes_encrypt(%s,"{key}")), to_base64(aes_encrypt(%s,"{key}")), %s)',(sEmail, sName, sUsername, sPass))
         emp_db.commit()
-        sched_cursor.execute(f'insert into staff (admin, sName)values(%s,to_base64(aes_encrypt(%s,"{key}")))',(creds[0], sName))
+        sched_cursor.execute(f'insert into staff (dID,admin, sName)values(%s,%s,to_base64(aes_encrypt(%s,"{key}")))',(dID, creds[0], sName))
         sched_db.commit()
         emp_cursor.execute(f'select sID from staff where sUsername=to_base64(aes_encrypt(%s,"{key}")) and sPassword=%s;', (sUsername, sPass))
         sID = emp_cursor.fetchone()[0]
@@ -158,8 +173,10 @@ add_admin function: Used to add new admin members to the system
 
 :path: /add_admin
 
+:param token: Authenticate user
 :param dID: Department that the user will belong to
 :param name: Name of user to be added
+:param email: Email address of user
 :param user: Username of user to be added
 :param pass: Password of user to be added
 :return: Message on success or failure
@@ -172,6 +189,12 @@ def add_admin():
         sName = request.args.get('name')
         sUsername = request.args.get('user')
         sPass = request.args.get('pass')
+        
+        if sEmail is None or sName is None:
+            return make_response(jsonify( { 'Error:': 'Missing name or email' } ), 501)
+        if sUsername is None or sPass is None:
+            return make_response(jsonify( { 'Error:': 'Username or Password' } ), 501)
+            
         emp_cursor.execute(f'select count(1) from admin where aUsername=to_base64(aes_encrypt(%s,"{key}"))',(sUsername,))
         if emp_cursor.fetchone()[0] > 0:
             return make_response(jsonify( { 'Error:': 'User already exists.' } ), 502)
@@ -196,6 +219,7 @@ remove_staff function: Used to add remove staff members from the system
 
 :path: /remove_staff
 
+:param token: Authenticate user
 :param sID: Id of staff member to be removed
 :return: Message on success or failure
 """
@@ -217,6 +241,7 @@ remove_admin function: Used to add remove admin members from the system
 
 :path: /remove_admin
 
+:param token: Authenticate user
 :param sID: Id of admin member to be removed
 :return: Message on success or failure
 """
@@ -247,25 +272,38 @@ def get_user():
     creds = auth(request.args.get('token'))
     if creds is not None:
         try:
+            dName = None
             if creds[1] == 1:
                 sched_cursor.execute(f'select sID,dID,convert(aes_decrypt(from_base64(sName),"{key}"),CHAR) from staff where sID=%s;', (creds[0],))
                 user = sched_cursor.fetchone()
-                sched_cursor.execute(f'select id,sID,UNIX_TIMESTAMP(startTime),UNIX_TIMESTAMP(endTime),timeOff from schedule where sID=%s;', (creds[0],))
+                if user[1] is not None:
+                    sched_cursor.execute(f'select convert(aes_decrypt(from_base64(dName),"{key}"),CHAR) from department where dID=%s;', (user[1],))
+                    dName = sched_cursor.fetchone()
+                sched_cursor.execute(f'select id,sID,convert(aes_decrypt(from_base64(workDate),"{key}"),CHAR),convert(aes_decrypt(from_base64(startTime),"{key}"),CHAR),convert(aes_decrypt(from_base64(endTime),"{key}"),CHAR),timeOff from schedule where sID=%s;', (creds[0],))
                 sched = sched_cursor.fetchall()
             elif creds[1] == 2:
                 sID = request.args.get('sID')
                 if sID is not None:
                     sched_cursor.execute(f'select sID,dID,convert(aes_decrypt(from_base64(sName),"{key}"),CHAR) from staff where sID=%s;', (sID,))
                     user = sched_cursor.fetchone()
-                    sched_cursor.execute(f'select id,sID,UNIX_TIMESTAMP(startTime),UNIX_TIMESTAMP(endTime),timeOff from schedule where sID=%s;', (sID,))
+                    if user[1] is not None:
+                        sched_cursor.execute(f'select convert(aes_decrypt(from_base64(dName),"{key}"),CHAR) from department where dID=%s;', (user[1],))
+                        dName = sched_cursor.fetchone()
+                    sched_cursor.execute(f'select id,sID,convert(aes_decrypt(from_base64(workDate),"{key}"),CHAR),convert(aes_decrypt(from_base64(startTime),"{key}"),CHAR),convert(aes_decrypt(from_base64(endTime),"{key}"),CHAR),timeOff from schedule where sID=%s;', (sID,))
                     sched = sched_cursor.fetchall()
                 else:
                     sched_cursor.execute(f'select aID,dID,convert(aes_decrypt(from_base64(aName),"{key}"),CHAR) from admin where aID=%s;', (creds[0],))
                     user = sched_cursor.fetchone()
+                    if user[1] is not None:
+                        sched_cursor.execute(f'select convert(aes_decrypt(from_base64(dName),"{key}"),CHAR) from department where dID=%s;', (user[1],))
+                        dName = sched_cursor.fetchone()
                     sched = None
 
             if user is not None:
-                return make_response(jsonify( { 'UserData': str(user), 'Schedule': str(sched) } ), 200)
+                user = json.loads(json.dumps(user))
+                user[1] = dName
+                sched = json.loads(json.dumps(sched))
+                return make_response(jsonify( { 'UserData': user, 'Schedule': sched } ), 200)
             else:
                 return make_response(jsonify( { 'Error': 'User not found!' } ), 404)
         except (mysql.connector.errors.ProgrammingError, mysql.connector.errors.DataError ) as err:
@@ -352,9 +390,10 @@ add_schedule function: Used to add a scheduled date
 
 :param token: Authenticate user
 :param sID: sID of staff member to add to
-:param start: Start time/date
+:param date: Day that it is assigned
+:param start: Start time
 :param end: Ending time/date
-:param timeOff: Is this an addition of ttime off
+:param timeOff: Is this an addition of time off
 :return: Success or Failure
 """
 @app.route('/add_schedule', methods=['POST'])
@@ -363,10 +402,11 @@ def add_schedule():
     if creds is not None and creds[1] == 2:
         try:
             sID = request.args.get('sID')
+            start_date = request.args.get('date')
             start_time = request.args.get('start')
             end_time = request.args.get('end')
             time_off = request.args.get('timeOff')
-            sched_cursor.execute(f'insert into schedule (sID,workDate,startTime,endTime,timeOff)values(%s,FROM_UNIXTIME(%s/1000),FROM_UNIXTIME(%s/1000),FROM_UNIXTIME(%s/1000),%s);', (sID, start_time, start_time, end_time, time_off))
+            sched_cursor.execute(f'insert into schedule (sID,workDate,startTime,endTime,timeOff)values(%s,to_base64(aes_encrypt(%s,"{key}")),to_base64(aes_encrypt(%s,"{key}")),to_base64(aes_encrypt(%s,"{key}")),%s);', (sID, start_date, start_time, end_time, time_off))
             sched_db.commit()
             return make_response(jsonify( { 'Response': 'Schedule updated.' }), 200)
         except (mysql.connector.errors.ProgrammingError, mysql.connector.errors.DataError ) as err:
@@ -380,6 +420,7 @@ remove_schedule function: Used to remove a scheduled date
 :path: /remove_schedule
 
 :param token: Authenticate user
+:param sID: sID of staff member to remove from
 :param id: id of schedule item to remove
 :return: Success or Failure
 """
@@ -388,8 +429,9 @@ def remove_schedule():
     creds = auth(request.args.get('token'))
     if creds is not None and creds[1] == 2:
         try:
-            id = request.args.get('id')
-            sched_cursor.execute(f'delete from schedule where id=%s;', (id,))
+            sched_id = request.args.get('id')
+            sID = request.args.get('sID')
+            sched_cursor.execute(f'delete from schedule where id=%s and sID=%s;', (sched_id,sID))
             sched_db.commit()
             return make_response(jsonify( { 'Response': 'Schedule updated.' }), 200)
         except (mysql.connector.errors.ProgrammingError, mysql.connector.errors.DataError ) as err:
@@ -411,9 +453,11 @@ def add_department():
     if creds is not None and creds[1] == 2:
         try:
             dep = request.args.get('dep')
+            if dep is None:
+                return make_response(jsonify( { 'Error:': 'Not all information supplied.'}), 501)
             sched_cursor.execute(f'select dID from department where dName=to_base64(aes_encrypt(%s,"{key}"))', (dep, ))
-            if cursor.fetchone() is None:
-                emp_cursor.execute(f'insert into department (dName,aID)values(to_base64(aes_encrypt(%s,"{key}")),%s)', (dep, creds[0]))
+            if sched_cursor.fetchone() is None:
+                emp_cursor.execute(f'insert into department (dName)values(to_base64(aes_encrypt(%s,"{key}")))', (dep,))
                 emp_db.commit()
                 sched_cursor.execute(f'insert into department (dName,aID)values(to_base64(aes_encrypt(%s,"{key}")),%s)', (dep, creds[0]))
                 sched_db.commit()
@@ -469,6 +513,7 @@ def get_departments():
             sched_cursor.execute(f'select dID,convert(aes_decrypt(from_base64(dName),"{key}"), CHAR) from department where aID=%s', (creds[0], ))
             deps = sched_cursor.fetchall()
             if deps is not None:
+                deps = json.loads(json.dumps(deps))
                 return make_response(jsonify( { 'Departments': deps } ), 200)
             else:
                 return make_response(jsonify( { 'Error': 'You do not have any departments...' } ), 404)
@@ -493,6 +538,7 @@ def get_staff():
             sched_cursor.execute(f'select sID,dID,convert(aes_decrypt(from_base64(sName),"{key}"), CHAR) from staff where admin=%s', (creds[0], ))
             staff = sched_cursor.fetchall()
             if staff is not None:
+                staff = json.loads(json.dumps(staff))
                 return make_response(jsonify( { 'Response': staff } ), 200)
             else:
                 return make_response(jsonify( { 'Response': 'You do not have any staff.' } ), 400)
@@ -577,5 +623,5 @@ if __name__ == "__main__":
     import logging
     logging.basicConfig(filename='_api.log',level=logging.DEBUG)
     app.secret_key = 'super secret key'
-    app.run(debug=Debug, host=Host, port=Port)
+    #app.run(debug=Debug, host=Host, port=Port)
     app.run(ssl_context=('cert.pem', 'key.pem'), host=Host, port=Port, debug=Debug)
