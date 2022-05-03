@@ -7,7 +7,7 @@ USE timeClockManager;
 CREATE TABLE department(
 dID INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
 aID INT NOT NULL,
-dName varchar(100),
+dName varchar(100)
 );
 
 CREATE TABLE admin(
@@ -38,9 +38,9 @@ FOREIGN KEY (sID) REFERENCES staff(sID)
 CREATE TABLE schedule(
 id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
 sID INT,
-workDate DATE NOT NULL,
-startTime TIME NOT NULL,
-endTime TIME NOT NULL,
+workDate varchar(100) NOT NULL CHECK (workDate <> ''),
+startTime varchar(100) NOT NULL CHECK (startTime <> ''),
+endTime varchar(100) NOT NULL CHECK (endTime <> ''),
 timeOff BOOLEAN, # (on break) 0 for no, 1 for yes
 FOREIGN KEY (sID) REFERENCES staff(sID)
 );
@@ -64,6 +64,5 @@ id INT PRIMARY KEY AUTO_INCREMENT,
 sID INT NOT NULL,
 ranks INT NOT NULL,
 creationDate DATETIME NOT NULL default current_timestamp,
-token varchar(64) NOT NULL CHECK (token <> ''),
-FOREIGN KEY (sID) REFERENCES staff(sID)
+token varchar(64) NOT NULL CHECK (token <> '')
 );
